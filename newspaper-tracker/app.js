@@ -4,8 +4,13 @@
 (function() {
     'use strict';
 
-    // Storage key
+    // Storage key for local backup
     const STORAGE_KEY = 'monthlyDistributions';
+
+    // Check if cloud database is enabled
+    function useCloud() {
+        return window.CONFIG && window.CONFIG.USE_CLOUD_DATABASE && window.CONFIG.API_URL;
+    }
 
     // DOM Elements
     const elements = {
@@ -38,18 +43,75 @@
     // State
     let distributions = [];
     let deleteTargetId = null;
+    let isLoading = false;
 
     // Initialize the app
-    function init() {
-        loadData();
+    async function init() {
+        await loadData();
         setDefaultDate();
         setupEventListeners();
         renderHistory();
         registerServiceWorker();
     }
 
-    // Load data from localStorage
-    function loadData() {
+    // API call helper
+    async function apiCall(action, options = {}) {
+        if (!useCloud()) {
+            throw new Error('Cloud database not configured');
+        }
+
+        const url = new URL(window.CONFIG.API_URL);
+        url.searchParams.set('action', action);
+
+        if (options.params) {
+            Object.entries(options.params).forEach(([key, value]) => {
+                url.searchParams.set(key, value);
+            });
+        }
+
+        const fetchOptions = {
+            method: options.method || 'GET',
+            mode: 'cors'
+        };
+
+        if (options.body) {
+            fetchOptions.method = 'POST';
+            fetchOptions.body = JSON.stringify(options.body);
+            fetchOptions.headers = {
+                'Content-Type': 'application/json'
+            };
+        }
+
+        const response = await fetch(url.toString(), fetchOptions);
+        return await response.json();
+    }
+
+    // Load data from cloud or localStorage
+    async function loadData() {
+        if (useCloud()) {
+            try {
+                showLoading(true);
+                const result = await apiCall('getAll');
+                if (result.entries) {
+                    distributions = result.entries;
+                    // Also save to localStorage as backup
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(distributions));
+                }
+            } catch (e) {
+                console.error('Error loading from cloud:', e);
+                // Fall back to localStorage
+                loadFromLocalStorage();
+                alert('Could not connect to cloud database. Using local data.');
+            } finally {
+                showLoading(false);
+            }
+        } else {
+            loadFromLocalStorage();
+        }
+    }
+
+    // Load from localStorage
+    function loadFromLocalStorage() {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             distributions = stored ? JSON.parse(stored) : [];
@@ -59,13 +121,59 @@
         }
     }
 
-    // Save data to localStorage
-    function saveData() {
+    // Save data to cloud and localStorage
+    async function saveData() {
+        // Always save to localStorage as backup
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(distributions));
         } catch (e) {
-            console.error('Error saving data:', e);
-            alert('Error saving data. Storage may be full.');
+            console.error('Error saving to localStorage:', e);
+        }
+    }
+
+    // Add entry to cloud
+    async function addEntryToCloud(entry) {
+        if (useCloud()) {
+            try {
+                await apiCall('add', { body: entry });
+            } catch (e) {
+                console.error('Error saving to cloud:', e);
+                alert('Entry saved locally but could not sync to cloud.');
+            }
+        }
+    }
+
+    // Delete entry from cloud
+    async function deleteEntryFromCloud(id) {
+        if (useCloud()) {
+            try {
+                await apiCall('delete', { params: { id } });
+            } catch (e) {
+                console.error('Error deleting from cloud:', e);
+                alert('Entry deleted locally but could not sync to cloud.');
+            }
+        }
+    }
+
+    // Clear all entries from cloud
+    async function clearAllFromCloud() {
+        if (useCloud()) {
+            try {
+                await apiCall('clear');
+            } catch (e) {
+                console.error('Error clearing cloud data:', e);
+                alert('Data cleared locally but could not sync to cloud.');
+            }
+        }
+    }
+
+    // Show/hide loading state
+    function showLoading(show) {
+        isLoading = show;
+        if (elements.historyList) {
+            if (show) {
+                elements.historyList.innerHTML = '<p class="empty-state">Loading...</p>';
+            }
         }
     }
 
@@ -104,9 +212,10 @@
         elements.cancelClear.addEventListener('click', () => {
             elements.clearModal.classList.add('hidden');
         });
-        elements.confirmClear.addEventListener('click', () => {
+        elements.confirmClear.addEventListener('click', async () => {
             distributions = [];
             saveData();
+            await clearAllFromCloud();
             renderHistory();
             elements.clearModal.classList.add('hidden');
         });
@@ -116,9 +225,9 @@
             elements.deleteModal.classList.add('hidden');
             deleteTargetId = null;
         });
-        elements.confirmDelete.addEventListener('click', () => {
+        elements.confirmDelete.addEventListener('click', async () => {
             if (deleteTargetId) {
-                deleteEntry(deleteTargetId);
+                await deleteEntry(deleteTargetId);
             }
             elements.deleteModal.classList.add('hidden');
             deleteTargetId = null;
@@ -143,7 +252,7 @@
     }
 
     // Handle form submission
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
         e.preventDefault();
 
         const entry = {
@@ -158,6 +267,7 @@
 
         distributions.unshift(entry);
         saveData();
+        await addEntryToCloud(entry);
 
         // Show success message
         elements.successMessage.classList.remove('hidden');
@@ -197,6 +307,8 @@
 
     // Render history list
     function renderHistory() {
+        if (isLoading) return;
+
         const filterValue = elements.filterMonth.value;
         let filtered = distributions;
 
@@ -238,9 +350,10 @@
     }
 
     // Delete entry
-    function deleteEntry(id) {
+    async function deleteEntry(id) {
         distributions = distributions.filter(d => d.id !== id);
         saveData();
+        await deleteEntryFromCloud(id);
         renderHistory();
     }
 
@@ -276,12 +389,12 @@
     }
 
     // Handle import
-    function handleImport(e) {
+    async function handleImport(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = async function(event) {
             try {
                 const imported = JSON.parse(event.target.result);
                 if (!Array.isArray(imported)) {
@@ -306,7 +419,12 @@
                     return;
                 }
 
-                distributions = [...newEntries, ...distributions];
+                // Add new entries
+                for (const entry of newEntries) {
+                    distributions.push(entry);
+                    await addEntryToCloud(entry);
+                }
+
                 distributions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 saveData();
                 renderHistory();
