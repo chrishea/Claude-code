@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="The Monthly">
+    <meta name="theme-color" content="#2c5530">
+
+    <title>The Monthly - Distribution Tracker</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>📰 The Monthly</h1>
+            <p class="subtitle">Killer Craft Village Distribution Tracker</p>
+        </header>
+
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="new-entry">New Entry</button>
+            <button class="tab-btn" data-tab="history">History</button>
+            <button class="tab-btn" data-tab="export">Export</button>
+        </nav>
+
+        <main class="content">
+            <!-- New Entry Tab -->
+            <section id="new-entry" class="tab-content active">
+                <form id="distribution-form">
+                    <div class="form-group">
+                        <label for="location">Location Name</label>
+                        <input type="text" id="location" name="location" required
+                               placeholder="e.g., General Store, Post Office"
+                               autocomplete="off" list="location-suggestions">
+                        <datalist id="location-suggestions"></datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="copies">Number of Copies Dropped Off</label>
+                        <input type="number" id="copies" name="copies" required
+                               min="1" max="9999" placeholder="Enter number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deliverer">Delivered By</label>
+                        <input type="text" id="deliverer" name="deliverer" required
+                               placeholder="Your name"
+                               autocomplete="off" list="deliverer-suggestions">
+                        <datalist id="deliverer-suggestions"></datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes (optional)</label>
+                        <textarea id="notes" name="notes" rows="2"
+                                  placeholder="Any additional notes..."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        ✓ Record Distribution
+                    </button>
+                </form>
+
+                <div id="success-message" class="success-message hidden">
+                    <span class="checkmark">✓</span>
+                    Distribution recorded successfully!
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history" class="tab-content">
+                <div class="history-controls">
+                    <div class="filter-group">
+                        <label for="filter-month">Filter by Month:</label>
+                        <input type="month" id="filter-month">
+                    </div>
+                    <button id="clear-filter" class="secondary-btn">Show All</button>
+                </div>
+
+                <div class="stats-summary" id="stats-summary">
+                    <div class="stat-item">
+                        <span class="stat-number" id="total-entries">0</span>
+                        <span class="stat-label">Entries</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="total-copies">0</span>
+                        <span class="stat-label">Total Copies</span>
+                    </div>
+                </div>
+
+                <div id="history-list" class="history-list">
+                    <p class="empty-state">No distributions recorded yet.</p>
+                </div>
+            </section>
+
+            <!-- Export Tab -->
+            <section id="export" class="tab-content">
+                <div class="export-options">
+                    <h2>Export Data</h2>
+                    <p>Download your distribution records for backup or reporting.</p>
+
+                    <button id="export-csv" class="export-btn">
+                        📊 Export as CSV
+                    </button>
+
+                    <button id="export-json" class="export-btn">
+                        📁 Export as JSON
+                    </button>
+
+                    <hr>
+
+                    <h2>Import Data</h2>
+                    <p>Restore from a previous backup.</p>
+
+                    <label class="import-btn">
+                        📥 Import JSON Backup
+                        <input type="file" id="import-file" accept=".json" hidden>
+                    </label>
+
+                    <hr>
+
+                    <h2>Clear Data</h2>
+                    <p class="warning-text">This action cannot be undone.</p>
+                    <button id="clear-data" class="danger-btn">
+                        🗑️ Clear All Data
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>The Monthly • Killer Craft Village, NM</p>
+        </footer>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Delete Entry?</h3>
+            <p>Are you sure you want to delete this distribution record?</p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="secondary-btn">Cancel</button>
+                <button id="confirm-delete" class="danger-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear All Confirmation Modal -->
+    <div id="clear-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Clear All Data?</h3>
+            <p>This will permanently delete all distribution records. This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="cancel-clear" class="secondary-btn">Cancel</button>
+                <button id="confirm-clear" class="danger-btn">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
