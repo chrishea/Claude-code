@@ -1,0 +1,32 @@
+{
+  "name": "cloudcroft-qa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "ingest": "tsx scripts/ingest.ts",
+    "import-substack": "tsx scripts/import-substack.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "chromadb": "^1.9.2",
+    "chromadb-default-embed": "^2.14.0",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^11.0.0",
+    "mammoth": "^1.11.0",
+    "next": "^14.2.0",
+    "openai": "^4.70.0",
+    "pdfjs-dist": "^5.4.530",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

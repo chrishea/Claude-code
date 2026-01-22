@@ -32,9 +32,7 @@
         confirmDelete: document.getElementById('confirm-delete'),
         clearModal: document.getElementById('clear-modal'),
         cancelClear: document.getElementById('cancel-clear'),
-        confirmClear: document.getElementById('confirm-clear'),
-        locationSuggestions: document.getElementById('location-suggestions'),
-        delivererSuggestions: document.getElementById('deliverer-suggestions')
+        confirmClear: document.getElementById('confirm-clear')
     };
 
     // State
@@ -47,7 +45,6 @@
         setDefaultDate();
         setupEventListeners();
         renderHistory();
-        updateSuggestions();
         registerServiceWorker();
     }
 
@@ -111,7 +108,6 @@
             distributions = [];
             saveData();
             renderHistory();
-            updateSuggestions();
             elements.clearModal.classList.add('hidden');
         });
 
@@ -177,8 +173,6 @@
         elements.delivererInput.value = currentDeliverer;
         elements.locationInput.focus();
 
-        // Update suggestions
-        updateSuggestions();
         renderHistory();
     }
 
@@ -248,22 +242,6 @@
         distributions = distributions.filter(d => d.id !== id);
         saveData();
         renderHistory();
-        updateSuggestions();
-    }
-
-    // Update autocomplete suggestions
-    function updateSuggestions() {
-        // Get unique locations
-        const locations = [...new Set(distributions.map(d => d.location))];
-        elements.locationSuggestions.innerHTML = locations
-            .map(loc => `<option value="${escapeHtml(loc)}">`)
-            .join('');
-
-        // Get unique deliverers
-        const deliverers = [...new Set(distributions.map(d => d.deliverer))];
-        elements.delivererSuggestions.innerHTML = deliverers
-            .map(del => `<option value="${escapeHtml(del)}">`)
-            .join('');
     }
 
     // Export to CSV
@@ -332,7 +310,6 @@
                 distributions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 saveData();
                 renderHistory();
-                updateSuggestions();
 
                 alert(`Successfully imported ${newEntries.length} entries!`);
             } catch (err) {

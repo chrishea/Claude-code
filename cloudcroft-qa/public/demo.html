@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudcroft Q&A Widget Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.8);
+      text-align: center;
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+    }
+
+    .demo-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      color: #1e3a5f;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .feature {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .feature h3 {
+      color: #1e3a5f;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .feature p {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .cta {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .cta p {
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .arrow {
+      animation: bounce 1s infinite;
+      display: inline-block;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Cloudcroft</h1>
+    <p class="subtitle">The voice of the mountain - your local guide to everything Cloudcroft, NM</p>
+
+    <div class="demo-card">
+      <h2>Discover Cloudcroft</h2>
+      <p>
+        Nestled at 8,663 feet in the Sacramento Mountains, Cloudcroft is a charming
+        mountain village offering cool summer escapes, snowy winters, and year-round
+        adventure. From hiking trails to local breweries, historic lodges to community
+        events, there's always something happening on the mountain.
+      </p>
+      <p>
+        Have questions about visiting, events, restaurants, or local attractions?
+        Click the chat button in the corner to ask our AI assistant anything about
+        Cloudcroft!
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">🏔️</div>
+          <h3>High Altitude</h3>
+          <p>8,663 ft elevation</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🌲</div>
+          <h3>Nature</h3>
+          <p>Lincoln National Forest</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🍺</div>
+          <h3>Dining</h3>
+          <p>Local breweries & cafes</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📅</div>
+          <h3>Events</h3>
+          <p>Year-round activities</p>
+        </div>
+      </div>
+
+      <div class="cta">
+        <p>Try asking the chatbot about Cloudcroft! <span class="arrow">→</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloudcroft Q&A Widget -->
+  <script>
+    window.CloudcroftQA = {
+      apiUrl: "http://localhost:3000/api/ask"
+    };
+  </script>
+  <script src="/widget.js"></script>
+</body>
+</html>
