@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribution Report - The Monthly</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: #2c5530;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+        }
+
+        .loading-banner {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .controls label {
+            font-weight: 600;
+        }
+
+        .controls select,
+        .controls input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            background: #2c5530;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .controls button:hover {
+            background: #1e3d22;
+        }
+
+        .controls button.secondary {
+            background: #666;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #2c5530;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background: #1e3d22;
+        }
+
+        th.sorted-asc::after {
+            content: ' ▲';
+        }
+
+        th.sorted-desc::after {
+            content: ' ▼';
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .summary-section {
+            margin-top: 30px;
+        }
+
+        .summary-section h2 {
+            margin-bottom: 15px;
+            color: #2c5530;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 2px solid #2c5530;
+            padding-bottom: 5px;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-list .count {
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            .loading-banner {
+                display: none;
+            }
+
+            header {
+                background: #333;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            th {
+                background: #333;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>The Monthly - Distribution Report</h1>
+            <p>Killer Craft Village Distribution Records</p>
+        </header>
+
+        <div id="loading-banner" class="loading-banner" style="display: none;">
+            Loading data from cloud database...
+        </div>
+
+        <div class="controls">
+            <div>
+                <label for="filter-month">Month:</label>
+                <input type="month" id="filter-month">
+            </div>
+            <div>
+                <label for="filter-location">Location:</label>
+                <select id="filter-location">
+                    <option value="">All Locations</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-deliverer">Deliverer:</label>
+                <select id="filter-deliverer">
+                    <option value="">All Deliverers</option>
+                </select>
+            </div>
+            <button onclick="applyFilters()">Apply Filters</button>
+            <button class="secondary" onclick="clearFilters()">Clear Filters</button>
+            <button class="secondary" onclick="refreshData()">Refresh Data</button>
+            <button class="secondary" onclick="window.print()">Print Report</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="total-entries">0</div>
+                <div class="label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="total-copies">0</div>
+                <div class="label">Total Copies</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="unique-locations">0</div>
+                <div class="label">Locations</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="unique-deliverers">0</div>
+                <div class="label">Deliverers</div>
+            </div>
+        </div>
+
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th data-sort="date">Date</th>
+                    <th data-sort="location">Location</th>
+                    <th data-sort="copies">Copies</th>
+                    <th data-sort="deliverer">Delivered By</th>
+                    <th data-sort="notes">Notes</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+
+        <div class="summary-section">
+            <h2>Summary by Location</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Copies by Location</h3>
+                    <ul class="summary-list" id="location-summary"></ul>
+                </div>
+                <div class="summary-card">
+                    <h3>Copies by Deliverer</h3>
+                    <ul class="summary-list" id="deliverer-summary"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const STORAGE_KEY = 'monthlyDistributions';
+        let allData = [];
+        let filteredData = [];
+        let currentSort = { field: 'date', direction: 'desc' };
+
+        // Check if cloud database is enabled
+        function useCloud() {
+            return window.CONFIG && window.CONFIG.USE_CLOUD_DATABASE && window.CONFIG.API_URL;
+        }
+
+        // API call helper
+        async function apiCall(action, options = {}) {
+            if (!useCloud()) {
+                throw new Error('Cloud database not configured');
+            }
+
+            const url = new URL(window.CONFIG.API_URL);
+            url.searchParams.set('action', action);
+
+            if (options.params) {
+                Object.entries(options.params).forEach(([key, value]) => {
+                    url.searchParams.set(key, value);
+                });
+            }
+
+            const fetchOptions = {
+                method: options.method || 'GET',
+                mode: 'cors'
+            };
+
+            const response = await fetch(url.toString(), fetchOptions);
+            return await response.json();
+        }
+
+        async function loadData() {
+            if (useCloud()) {
+                try {
+                    document.getElementById('loading-banner').style.display = 'block';
+                    const result = await apiCall('getAll');
+                    if (result.entries) {
+                        allData = result.entries;
+                        // Also save to localStorage as backup
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+                    }
+                } catch (e) {
+                    console.error('Error loading from cloud:', e);
+                    // Fall back to localStorage
+                    loadFromLocalStorage();
+                    alert('Could not connect to cloud database. Using local data.');
+                } finally {
+                    document.getElementById('loading-banner').style.display = 'none';
+                }
+            } else {
+                loadFromLocalStorage();
+            }
+            filteredData = [...allData];
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                allData = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Error loading data:', e);
+                allData = [];
+            }
+        }
+
+        async function refreshData() {
+            await loadData();
+            populateFilters();
+            sortData();
+            render();
+        }
+
+        function populateFilters() {
+            const locations = [...new Set(allData.map(d => d.location))].sort();
+            const deliverers = [...new Set(allData.map(d => d.deliverer))].sort();
+
+            const locationSelect = document.getElementById('filter-location');
+            // Clear existing options except first
+            locationSelect.innerHTML = '<option value="">All Locations</option>';
+            locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc;
+                option.textContent = loc;
+                locationSelect.appendChild(option);
+            });
+
+            const delivererSelect = document.getElementById('filter-deliverer');
+            // Clear existing options except first
+            delivererSelect.innerHTML = '<option value="">All Deliverers</option>';
+            deliverers.forEach(del => {
+                const option = document.createElement('option');
+                option.value = del;
+                option.textContent = del;
+                delivererSelect.appendChild(option);
+            });
+        }
+
+        function applyFilters() {
+            const month = document.getElementById('filter-month').value;
+            const location = document.getElementById('filter-location').value;
+            const deliverer = document.getElementById('filter-deliverer').value;
+
+            filteredData = allData.filter(d => {
+                if (month && !d.date.startsWith(month)) return false;
+                if (location && d.location !== location) return false;
+                if (deliverer && d.deliverer !== deliverer) return false;
+                return true;
+            });
+
+            sortData();
+            render();
+        }
+
+        function clearFilters() {
+            document.getElementById('filter-month').value = '';
+            document.getElementById('filter-location').value = '';
+            document.getElementById('filter-deliverer').value = '';
+            filteredData = [...allData];
+            sortData();
+            render();
+        }
+
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let aVal = a[currentSort.field];
+                let bVal = b[currentSort.field];
+
+                if (currentSort.field === 'copies') {
+                    aVal = parseInt(aVal);
+                    bVal = parseInt(bVal);
+                }
+
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function handleSort(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+            sortData();
+            render();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        function render() {
+            // Update stats
+            document.getElementById('total-entries').textContent = filteredData.length;
+            document.getElementById('total-copies').textContent =
+                filteredData.reduce((sum, d) => sum + d.copies, 0).toLocaleString();
+            document.getElementById('unique-locations').textContent =
+                new Set(filteredData.map(d => d.location)).size;
+            document.getElementById('unique-deliverers').textContent =
+                new Set(filteredData.map(d => d.deliverer)).size;
+
+            // Update table
+            const tbody = document.getElementById('table-body');
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;">No records found</td></tr>';
+            } else {
+                tbody.innerHTML = filteredData.map(d => `
+                    <tr>
+                        <td>${formatDate(d.date)}</td>
+                        <td>${escapeHtml(d.location)}</td>
+                        <td>${d.copies}</td>
+                        <td>${escapeHtml(d.deliverer)}</td>
+                        <td>${escapeHtml(d.notes)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update sort indicators
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+                if (th.dataset.sort === currentSort.field) {
+                    th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                }
+            });
+
+            // Update summaries
+            renderSummaries();
+        }
+
+        function renderSummaries() {
+            // Location summary
+            const locationCounts = {};
+            filteredData.forEach(d => {
+                locationCounts[d.location] = (locationCounts[d.location] || 0) + d.copies;
+            });
+            const locationSorted = Object.entries(locationCounts).sort((a, b) => b[1] - a[1]);
+            document.getElementById('location-summary').innerHTML = locationSorted.map(([loc, count]) => `
+                <li><span>${escapeHtml(loc)}</span><span class="count">${count.toLocaleString()}</span></li>
+            `).join('') || '<li>No data</li>';
+
+            // Deliverer summary
+            const delivererCounts = {};
+            filteredData.forEach(d => {
+                delivererCounts[d.deliverer] = (delivererCounts[d.deliverer] || 0) + d.copies;
+            });
+            const delivererSorted = Object.entries(delivererCounts).sort((a, b) => b[1] - a[1]);
+            document.getElementById('deliverer-summary').innerHTML = delivererSorted.map(([del, count]) => `
+                <li><span>${escapeHtml(del)}</span><span class="count">${count.toLocaleString()}</span></li>
+            `).join('') || '<li>No data</li>';
+        }
+
+        // Setup sort handlers
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => handleSort(th.dataset.sort));
+        });
+
+        // Initialize
+        (async function init() {
+            await loadData();
+            populateFilters();
+            sortData();
+            render();
+        })();
+    </script>
+</body>
+</html>
