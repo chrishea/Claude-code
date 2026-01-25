@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Scrubber - Cloudcroft Reader Editorial Analysis System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Serif:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: steelblue;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .header p {
+            font-family: 'IBM Plex Sans', sans-serif;
+            margin: 0;
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 13px;
+        }
+        .section {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .section h3 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: #34495e;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .section h4 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: #546e7a;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            font-style: italic;
+        }
+        .section p {
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .critical {
+            background-color: #ffe6e6;
+            border-left: 5px solid #e74c3c;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .critical strong {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border-left: 5px solid #f39c12;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .warning strong {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .checklist {
+            background-color: #e8f5e9;
+            border-left: 5px solid #27ae60;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .checklist strong {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .craft-tip {
+            background-color: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .craft-tip strong {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .source-box {
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .source-box h4 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            color: #1565c0;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 30px;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        li strong {
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        .emoji {
+            font-size: 16px;
+            margin-right: 5px;
+        }
+        .recommendation {
+            background-color: #d6eaf8;
+            border: 2px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 13px;
+        }
+        .recommendation h3 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #e8e8e8;
+            font-style: italic;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 THE SCRUBBER</h1>
+        <p>Comprehensive Editorial Analysis System for Cloudcroft Reader</p>
+        <p>Covering AP Style, Fact-Checking, Libel Risk, AI Detection & Editorial Standards</p>
+    </div>
+
+    <div class="section">
+        <h2>📋 How to Use The Scrubber</h2>
+        <p>Apply this comprehensive analysis to every article before publication. Each section must be thoroughly evaluated and documented. The Scrubber ensures journalistic integrity, legal protection, and editorial excellence.</p>
+    </div>
+
+    <div class="section">
+        <h2>🚨 CRITICAL ISSUES CHECK</h2>
+        
+        <h3>1. SOURCING VERIFICATION</h3>
+        <div class="critical">
+            <strong>FATAL FLAWS - Cannot publish without addressing:</strong>
+            <ul>
+                <li>Are ALL factual claims attributed to specific sources?</li>
+                <li>Are sources named and identifiable?</li>
+                <li>Are sources credible and appropriate for the claims made?</li>
+                <li>Are there any unsourced claims that appear to be factual?</li>
+                <li>Do quotes have proper attribution?</li>
+                <li>Are secondhand sources clearly identified as such?</li>
+            </ul>
+        </div>
+
+        <h3>2. AI-GENERATED TEXT DETECTION</h3>
+        <div class="warning">
+            <strong>RED FLAGS - High probability AI content indicators:</strong>
+            <ul>
+                <li><strong>Generic promotional language:</strong> "miraculous," "tremendous success," "state-of-the-art," "cutting-edge," "game-changer"</li>
+                <li><strong>Smooth sourceless narrative:</strong> Confident assertions without attribution</li>
+                <li><strong>Editorializing without attribution:</strong> Subjective conclusions presented as fact</li>
+                <li><strong>Formulaic conclusions:</strong> "Legacy persists," "testament to," "continues to this day"</li>
+                <li><strong>Vague but impressive-sounding claims:</strong> Numbers or details without specific sources</li>
+                <li><strong>Lack of specific quotes:</strong> Paraphrasing instead of direct quotes from real people</li>
+                <li><strong>Overly celebratory tone:</strong> Uncritical praise without nuance</li>
+                <li><strong>Perfect storytelling:</strong> No complications, contradictions, or messy details</li>
+                <li><strong>Absence of journalistic voice:</strong> Reads like marketing copy or Wikipedia</li>
+            </ul>
+            <p><strong>ACTION REQUIRED:</strong> If multiple indicators present, verify with original reporting or clearly label as unverified/historical account.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>✓ FACT-CHECKING PROTOCOL</h2>
+        
+        <h3>Verification Requirements</h3>
+        <ul>
+            <li><strong>Names:</strong> Verify spelling, titles, and credentials of all people mentioned</li>
+            <li><strong>Dates:</strong> Confirm all dates, times, and timelines</li>
+            <li><strong>Numbers:</strong> Verify statistics, financial figures, measurements, ages</li>
+            <li><strong>Locations:</strong> Confirm addresses, place names, geographic details</li>
+            <li><strong>Organizations:</strong> Verify names, acronyms, and descriptions</li>
+            <li><strong>Historical claims:</strong> Cross-reference with reliable historical sources</li>
+            <li><strong>Technical information:</strong> Verify specialized or technical details with experts</li>
+        </ul>
+
+        <h3>Red Flags Requiring Extra Scrutiny</h3>
+        <div class="warning">
+            <ul>
+                <li>Claims that seem too perfect or convenient</li>
+                <li>Round numbers without explanation</li>
+                <li>Superlatives ("first," "only," "best," "worst")</li>
+                <li>Claims that advance a narrative too neatly</li>
+                <li>Information that contradicts common knowledge</li>
+                <li>Details that can't be easily verified</li>
+            </ul>
+        </div>
+
+        <h3>Missing Critical Context</h3>
+        <ul>
+            <li>What's the other side of the story?</li>
+            <li>What complications or failures existed?</li>
+            <li>What information contradicts the main narrative?</li>
+            <li>Who disagrees with the claims made?</li>
+            <li>What documentation exists to support claims?</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📰 AP STYLE COMPLIANCE</h2>
+        
+        <h3>Common AP Style Issues to Check</h3>
+        <ul>
+            <li><strong>Dates:</strong> Month day, year (Jan. 15, 2024) - Spell out months in text</li>
+            <li><strong>Times:</strong> Use figures except for noon and midnight (3 p.m., 10:30 a.m.)</li>
+            <li><strong>Numbers:</strong> Spell out one through nine, use figures for 10 and above</li>
+            <li><strong>Addresses:</strong> Abbreviate Ave., Blvd., St. only with numbered address</li>
+            <li><strong>States:</strong> Spell out in body text, abbreviate in datelines</li>
+            <li><strong>Titles:</strong> Capitalize before names, lowercase after</li>
+            <li><strong>Hyphenation:</strong> "around-the-clock" not "round-the-clock"; "multigenerational" (no hyphen)</li>
+            <li><strong>Percentages:</strong> Use figures and spell out "percent" (15 percent)</li>
+            <li><strong>Money:</strong> Use figures and $ sign ($5, $1 million)</li>
+            <li><strong>Ages:</strong> Always use figures (5-year-old, 55 years old)</li>
+        </ul>
+
+        <h3>Local Style Preferences</h3>
+        <ul>
+            <li>Cloudcroft Village Council (not "Town Council" or "City Council")</li>
+            <li>Otero County (verify county references)</li>
+            <li>Highway 82, U.S. 70 (not "Hwy" or "Route")</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>⚖️ LIBEL RISK ASSESSMENT</h2>
+        
+        <div class="critical">
+            <strong>HIGH RISK - Requires legal review:</strong>
+            <ul>
+                <li>Accusations of criminal activity</li>
+                <li>Claims of unethical professional conduct</li>
+                <li>Allegations of fraud, corruption, or dishonesty</li>
+                <li>Statements that could damage reputation or livelihood</li>
+                <li>Claims about private life or character</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>MEDIUM RISK - Requires careful sourcing:</strong>
+            <ul>
+                <li>Criticism of public officials' performance</li>
+                <li>Reports of investigations or complaints</li>
+                <li>Financial difficulties of businesses</li>
+                <li>Disputes between parties</li>
+            </ul>
+        </div>
+
+        <h3>Libel Defense Checklist</h3>
+        <div class="checklist">
+            <ul>
+                <li>✓ Is the information true and can we prove it?</li>
+                <li>✓ Are sources on-the-record and credible?</li>
+                <li>✓ Have we given the subject opportunity to respond?</li>
+                <li>✓ Are opinions clearly labeled as such?</li>
+                <li>✓ Have we avoided inflammatory language?</li>
+                <li>✓ Is the information relevant to public interest?</li>
+                <li>✓ Have we included all relevant context?</li>
+            </ul>
+        </div>
+
+        <h3>Required for Controversial Claims</h3>
+        <ul>
+            <li>Multiple independent sources</li>
+            <li>Documentary evidence when possible</li>
+            <li>On-the-record statements</li>
+            <li>Right of reply given to subjects</li>
+            <li>Editor review before publication</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📝 EDITORIAL STANDARDS</h2>
+
+        <h3>Core Journalistic Requirements</h3>
+        <ol>
+            <li><strong>News Hook:</strong> Why are we telling this story now? What makes it timely?</li>
+            <li><strong>Original Reporting:</strong> What did we discover ourselves? What's new?</li>
+            <li><strong>Multiple Perspectives:</strong> Have we included all relevant viewpoints?</li>
+            <li><strong>Critical Analysis:</strong> Have we challenged assumptions and tested claims?</li>
+            <li><strong>Complete Story:</strong> Who, what, when, where, why, how all addressed?</li>
+            <li><strong>Context:</strong> Does the reader have enough background to understand?</li>
+        </ol>
+
+        <h3>Tone and Voice</h3>
+        <div class="checklist">
+            <ul>
+                <li>✓ Professional, not promotional</li>
+                <li>✓ Fair and balanced, not advocacy</li>
+                <li>✓ Clear and accessible, not jargon-heavy</li>
+                <li>✓ Engaging, not dry</li>
+                <li>✓ Local focus, not generic</li>
+                <li>✓ Respectful, not sensational</li>
+            </ul>
+        </div>
+
+        <h3>Red Flags - Editorial Quality Issues</h3>
+        <div class="warning">
+            <ul>
+                <li>Lacks local angle or connection to community</li>
+                <li>No quotes from real people</li>
+                <li>One-sided presentation</li>
+                <li>Missing follow-up questions</li>
+                <li>Unclear timeline or sequence</li>
+                <li>Passive voice dominates</li>
+                <li>Clichés or tired phrases</li>
+                <li>Information dumps without narrative</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📚 WRITING CRAFT REFERENCE</h2>
+        <p>Top principles from leading writing guides to elevate prose quality and storytelling.</p>
+
+        <div class="source-box">
+            <h4>📘 Writing Tools — Roy Peter Clark</h4>
+            <ul>
+                <li><strong>Front-load meaning:</strong> Favor short, clear sentences with strong subjects and active verbs; make meaning early, then let details branch to the right.</li>
+                <li><strong>Vary rhythm:</strong> Vary sentence length for rhythm, and "climb the ladder of abstraction" by mixing concrete detail (names, numbers, scenes) with a few well-chosen general statements.</li>
+                <li><strong>Control pacing:</strong> Slow down on key moments with specific sensory detail and quotes; speed up on routine background.</li>
+                <li><strong>Cut clutter:</strong> Remove throat-clearing, redundancies, and filler adverbs; choose precise nouns and verbs instead.</li>
+            </ul>
+        </div>
+
+        <div class="source-box">
+            <h4>📗 Art and Craft of Feature Writing — William Blundell</h4>
+            <ul>
+                <li><strong>Theme statement first:</strong> Start every story by writing a one- or two-sentence theme statement that captures what the piece is really about; use it to decide what to keep and what to cut.</li>
+                <li><strong>Find fresh angles:</strong> Look at ideas from multiple "story dimensions" (history, scope, impact, process, people, data) to find the freshest angles.</li>
+                <li><strong>Plan loosely, write tightly:</strong> Work from a loose plan: outline major sections, turning points, and key scenes before drafting, then keep digressions short and return quickly to the main action.</li>
+                <li><strong>End with resonance:</strong> End by giving the reader something new to think about so the story feels larger than the incident that triggered it.</li>
+            </ul>
+        </div>
+
+        <div class="source-box">
+            <h4>📙 Major Newsroom Style Guides (NYT, WSJ, BBC)</h4>
+            <ul>
+                <li><strong>Consistency over cleverness:</strong> Use a consistent style standard (AP plus a house style layer) for capitalization, numbers, titles, and sensitive terms; when in doubt, choose clarity over cleverness.</li>
+                <li><strong>Neutral, specific language:</strong> Prefer neutral, specific language over labels or loaded terms, especially in politics, crime, and social issues.</li>
+                <li><strong>Headlines that inform:</strong> Write headlines that are accurate, concrete, and free of hype; avoid puns unless they clarify rather than obscure.</li>
+                <li><strong>Clean modern voice:</strong> Maintain a clean, modern news voice: active, declarative sentences, minimal jargon, and attribution that makes sourcing transparent.</li>
+            </ul>
+        </div>
+
+        <div class="source-box">
+            <h4>📕 Ernest Hemingway — Prose Principles</h4>
+            <ul>
+                <li><strong>Short sentences:</strong> Use short sentences. They punch. They move.</li>
+                <li><strong>Active voice:</strong> Write in active voice. Subject acts on object. No hiding.</li>
+                <li><strong>Iceberg theory:</strong> Show, don't tell. The dignity of movement of an iceberg is due to only one-eighth of it being above water. Let readers feel what's beneath.</li>
+                <li><strong>Stop while you know:</strong> Stop writing while you still know what happens next. You'll have momentum tomorrow.</li>
+                <li><strong>One true sentence:</strong> Write one true sentence. The truest sentence you know. Then go from there.</li>
+                <li><strong>Edit ruthlessly:</strong> The first draft of anything is shit. Rewrite it. Then rewrite it again.</li>
+                <li><strong>Strong verbs:</strong> Use strong, concrete verbs. Verbs do the work. Let them.</li>
+                <li><strong>Kill modifiers:</strong> Avoid unnecessary adjectives and adverbs. If the noun is right, it doesn't need propping up.</li>
+                <li><strong>Concrete detail:</strong> Ground your writing in concrete detail and observation. Specific beats general every time.</li>
+                <li><strong>Write what hurts:</strong> Write hard and clear about what hurts. That's where the truth lives.</li>
+                <li><strong>Actions reveal character:</strong> Don't judge your characters; let actions reveal them. Trust your reader.</li>
+                <li><strong>Earn every word:</strong> Strip prose down to the bone so every word earns its place. If it doesn't work, cut it.</li>
+            </ul>
+        </div>
+
+        <h3>Quick Craft Checklist</h3>
+        <div class="craft-tip">
+            <strong>Before filing, ask:</strong>
+            <ul>
+                <li>☐ Can I state this story's theme in one sentence?</li>
+                <li>☐ Does my lede deliver meaning immediately?</li>
+                <li>☐ Have I varied sentence length for rhythm?</li>
+                <li>☐ Are key moments slowed with sensory detail?</li>
+                <li>☐ Have I cut throat-clearing and filler words?</li>
+                <li>☐ Does my ending give readers something new to think about?</li>
+                <li>☐ Is my language neutral and specific, not loaded?</li>
+                <li>☐ Is my headline accurate and concrete?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>✏️ HEADLINE STANDARDS</h2>
+        
+        <h3>Headline Requirements</h3>
+        <ul>
+            <li>Accurate representation of story content</li>
+            <li>Active voice preferred</li>
+            <li>Present tense for recent events</li>
+            <li>Specific, not vague</li>
+            <li>Local angle emphasized when relevant</li>
+            <li>Avoid sensationalism or clickbait</li>
+            <li>No editorializing in news headlines</li>
+        </ul>
+
+        <h3>Headline Testing</h3>
+        <div class="checklist">
+            <ul>
+                <li>✓ Does it accurately reflect the story?</li>
+                <li>✓ Would it mislead anyone?</li>
+                <li>✓ Is it clear to someone unfamiliar with the topic?</li>
+                <li>✓ Does it avoid loaded or biased language?</li>
+                <li>✓ Is it specific enough to be meaningful?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🎯 FINAL RECOMMENDATION FRAMEWORK</h2>
+
+        <div class="recommendation">
+            <h3>PUBLISH AS-IS</h3>
+            <p>All checks passed. Story is well-sourced, factually accurate, properly styled, legally sound, and editorially excellent.</p>
+        </div>
+
+        <div class="warning">
+            <h3>PUBLISH WITH MINOR REVISIONS</h3>
+            <p>AP style corrections needed, or minor fact-checking required, but no fundamental issues with sourcing or editorial standards.</p>
+        </div>
+
+        <div class="critical">
+            <h3>DO NOT PUBLISH WITHOUT MAJOR REVISION</h3>
+            <p>Required when story has:</p>
+            <ul>
+                <li>Sourcing problems</li>
+                <li>Significant AI-generated content concerns</li>
+                <li>Fact-checking failures</li>
+                <li>Potential libel issues</li>
+                <li>Editorial standards violations</li>
+            </ul>
+            <p><strong>ACTION REQUIRED:</strong> List specific fixes needed before story can be reconsidered.</p>
+        </div>
+
+        <div class="critical">
+            <h3>KILL STORY</h3>
+            <p>Fatal flaws that cannot be corrected:</p>
+            <ul>
+                <li>Core facts cannot be verified</li>
+                <li>Sources unreliable or fabricated</li>
+                <li>Serious libel risk with insufficient defense</li>
+                <li>Story fundamentally misleading</li>
+                <li>Ethical violations in reporting</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 THE SCRUBBER CHECKLIST</h2>
+        
+        <p><strong>Complete this checklist for every article:</strong></p>
+        
+        <div class="checklist">
+            <h3>☐ SOURCING</h3>
+            <ul>
+                <li>☐ All factual claims attributed</li>
+                <li>☐ Sources identified and credible</li>
+                <li>☐ No unsourced assertions</li>
+            </ul>
+
+            <h3>☐ AI DETECTION</h3>
+            <ul>
+                <li>☐ Checked for AI language indicators</li>
+                <li>☐ Verified claims with original reporting</li>
+                <li>☐ No generic promotional language</li>
+            </ul>
+
+            <h3>☐ FACT-CHECKING</h3>
+            <ul>
+                <li>☐ Names, titles, spellings verified</li>
+                <li>☐ Dates and numbers confirmed</li>
+                <li>☐ Locations checked</li>
+                <li>☐ Technical details verified</li>
+            </ul>
+
+            <h3>☐ AP STYLE</h3>
+            <ul>
+                <li>☐ Dates, times, numbers formatted correctly</li>
+                <li>☐ Titles and capitalization proper</li>
+                <li>☐ Hyphenation correct</li>
+                <li>☐ Local style preferences followed</li>
+            </ul>
+
+            <h3>☐ LIBEL RISK</h3>
+            <ul>
+                <li>☐ Controversial claims properly sourced</li>
+                <li>☐ Right of reply given when appropriate</li>
+                <li>☐ Inflammatory language avoided</li>
+                <li>☐ Risk level assessed</li>
+            </ul>
+
+            <h3>☐ EDITORIAL STANDARDS</h3>
+            <ul>
+                <li>☐ News hook identified</li>
+                <li>☐ Original reporting present</li>
+                <li>☐ Multiple perspectives included</li>
+                <li>☐ Critical analysis applied</li>
+                <li>☐ Complete story (5 W's + H)</li>
+            </ul>
+
+            <h3>☐ WRITING CRAFT</h3>
+            <ul>
+                <li>☐ Theme statement identifiable</li>
+                <li>☐ Lede delivers meaning immediately</li>
+                <li>☐ Sentence rhythm varied</li>
+                <li>☐ Key moments slowed with detail</li>
+                <li>☐ Clutter and filler cut</li>
+                <li>☐ Ending resonates</li>
+            </ul>
+
+            <h3>☐ FINAL DETERMINATION</h3>
+            <ul>
+                <li>☐ Recommendation documented</li>
+                <li>☐ Required changes listed</li>
+                <li>☐ Editor review completed</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>The Scrubber - Cloudcroft Reader Editorial Analysis System</p>
+        <p>Ensuring journalistic excellence, accuracy, and integrity in every story</p>
+        <p>© Cloudcroft Reader</p>
+    </div>
+</body>
+</html>
