@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article Improvement Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:       #4682b4;
+    --blue-dark:  #2f5f8a;
+    --blue-light: #d6e8f7;
+    --blue-pale:  #eef5fb;
+    --green:      #2e7d52;
+    --green-light:#d4eddf;
+    --amber:      #b45309;
+    --amber-light:#fef3c7;
+    --text:       #1a1a2e;
+    --muted:      #5a6072;
+    --border:     #c8d8e8;
+    --bg:         #e8f0f8;
+    --surface:    #ffffff;
+    --radius:     8px;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+    color: white;
+    padding: 24px 32px 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  header .logo-block { flex: 1; }
+  header h1 {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin-bottom: 3px;
+  }
+  header p {
+    font-size: 12px;
+    opacity: 0.8;
+    font-style: italic;
+  }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 1280px; margin: 0 auto; padding: 24px 24px 48px; }
+
+  /* ── Input Panel ── */
+  .input-panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .options-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: flex-end;
+  }
+  .option-group { display: flex; flex-direction: column; gap: 5px; }
+  .option-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+  }
+  select, input[type="text"] {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input[type="text"]:focus { border-color: var(--blue); }
+  select { min-width: 160px; cursor: pointer; }
+
+  textarea {
+    width: 100%;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    resize: vertical;
+    min-height: 220px;
+    color: var(--text);
+    background: var(--blue-pale);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  textarea:focus { border-color: var(--blue); background: white; }
+  textarea::placeholder { color: #9bafc4; font-style: italic; }
+
+  .char-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 6px; }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 12px; margin-top: 18px; align-items: center; }
+
+  button {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 9px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(70,130,180,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(70,130,180,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--blue-pale); color: var(--blue); border-color: var(--blue); }
+
+  /* ── Progress ── */
+  #progress-area {
+    display: none;
+    background: var(--blue-pale);
+    border: 1px solid var(--blue-light);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--blue-dark);
+  }
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--blue-light);
+    border-radius: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.4s ease;
+    animation: pulse-bar 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* ── Results ── */
+  #results-area { display: none; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .results-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .view-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .view-toggle button {
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    box-shadow: none;
+  }
+  .view-toggle button.active {
+    background: white;
+    color: var(--blue-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* ── Side by side ── */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 800px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+  .article-col {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+  .col-head {
+    padding: 10px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+  }
+  .col-head.original { background: #f0f0f0; color: #555; border-bottom: 1px solid #ddd; }
+  .col-head.revised  { background: var(--green-light); color: var(--green); border-bottom: 1px solid #b2d9c0; }
+
+  .col-body {
+    padding: 20px;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .col-body.original { color: #555; }
+  .col-body.revised  { color: var(--text); }
+
+  /* ── Summary card ── */
+  #summary-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-top: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+  #summary-card .col-head {
+    background: var(--amber-light);
+    color: var(--amber);
+    border-bottom: 1px solid #fcd97a;
+  }
+  #summary-body {
+    padding: 18px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+
+  /* ── Single-column view ── */
+  #revised-only {
+    display: none;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+
+  /* ── Prompt panel ── */
+  #prompt-panel {
+    display: none;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-top: 20px;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+  #prompt-text {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    color: var(--text);
+    background: var(--blue-pale);
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(70,130,180,0.3);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Copy button ── */
+  .copy-btn {
+    font-size: 11px;
+    padding: 4px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+  }
+  .copy-btn:hover { background: var(--blue-pale); color: var(--blue); }
+
+  /* ── Grade button ── */
+  .btn-grade {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+  }
+  .btn-grade:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(124,58,237,0.4); }
+  .btn-grade:active { transform: translateY(0); }
+  .btn-grade:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── Scorecard ── */
+  #grade-area { display: none; margin-top: 20px; }
+
+  .scorecard {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(70,130,180,0.08);
+  }
+  .scorecard-head {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .scorecard-head .sc-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+  }
+  .overall-score {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .overall-score .big-num {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .overall-score .denom { font-size: 14px; opacity: 0.75; }
+
+  .score-rows { padding: 6px 0; }
+  .score-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 52px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .score-bar-wrap {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .score-bar {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.7s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .score-num { font-size: 13px; font-weight: 700; text-align: right; }
+
+  .score-verdict {
+    padding: 14px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    border-top: 2px solid var(--border);
+    font-family: 'IBM Plex Serif', serif;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  /* bar colours by score */
+  .bar-high   { background: linear-gradient(90deg, #16a34a, #22c55e); }
+  .bar-mid    { background: linear-gradient(90deg, #ca8a04, #eab308); }
+  .bar-low    { background: linear-gradient(90deg, #dc2626, #ef4444); }
+  .num-high   { color: #16a34a; }
+  .num-mid    { color: #ca8a04; }
+  .num-low    { color: #dc2626; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <h1>Article Improvement Tool</h1>
+    <p>NYT-standard editorial revision with side-by-side comparison</p>
+  </div>
+  <span class="badge">Cloudcroft Reader</span>
+</header>
+
+<div class="container">
+
+  <!-- Input Panel -->
+  <div class="input-panel">
+    <div class="panel-title">Paste Your Article</div>
+
+    <div class="options-row">
+      <div class="option-group">
+        <label>Editorial Standard</label>
+        <select id="standard">
+          <option value="nyt">New York Times</option>
+          <option value="ap">AP / Wire Style</option>
+          <option value="new-yorker">The New Yorker</option>
+          <option value="local">Local Community Voice</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Focus Area</label>
+        <select id="focus">
+          <option value="all">Full Improvement</option>
+          <option value="lead">Lead & Structure</option>
+          <option value="tighten">Tighten / Cut Wordiness</option>
+          <option value="voice">Voice & Tone</option>
+          <option value="flow">Flow & Transitions</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Publication</label>
+        <select id="publication">
+          <option value="cloudcroft-reader">Cloudcroft Reader</option>
+          <option value="mountain-monthly">Mountain Monthly</option>
+          <option value="generic">Generic</option>
+        </select>
+      </div>
+    </div>
+
+    <textarea id="article-input" placeholder="Paste your article draft here. The tool will revise it to match your chosen editorial standard, then show a side-by-side comparison of original vs. improved text."></textarea>
+    <div class="char-count"><span id="char-count">0</span> characters</div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="run-btn" onclick="runImprovement()">
+        Improve Article
+      </button>
+      <button class="btn-grade" id="grade-btn" onclick="runGrade()">
+        Grade Article
+      </button>
+      <button class="btn-ghost" onclick="clearAll()">Clear</button>
+      <button class="btn-ghost" onclick="showPrompt()">View Prompt</button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress-area">
+    <span class="spinner"></span>
+    <span id="progress-msg">Analyzing article…</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-area">
+    <div class="results-header">
+      <span class="results-title">Results</span>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="copy-btn" onclick="copyRevised()">Copy Revised</button>
+        <div class="view-toggle">
+          <button id="toggle-side" class="active" onclick="setView('side')">Side by Side</button>
+          <button id="toggle-revised" onclick="setView('revised')">Revised Only</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side by side -->
+    <div class="comparison-grid" id="side-view">
+      <div class="article-col">
+        <div class="col-head original">Original</div>
+        <div class="col-body original" id="original-body"></div>
+      </div>
+      <div class="article-col">
+        <div class="col-head revised">Revised</div>
+        <div class="col-body revised" id="revised-body"></div>
+      </div>
+    </div>
+
+    <!-- Revised only -->
+    <div id="revised-only">
+      <div class="article-col" style="border-radius:8px;">
+        <div class="col-head revised">Revised Article</div>
+        <div class="col-body revised" id="revised-body-2"></div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div id="summary-card">
+      <div class="col-head" style="background:var(--amber-light);color:var(--amber);border-bottom:1px solid #fcd97a;">Editorial Notes</div>
+      <div id="summary-body"></div>
+    </div>
+  </div>
+
+  <!-- Prompt Panel -->
+  <div id="prompt-panel">
+    <div class="panel-title">The Prompt Behind This Tool</div>
+    <pre id="prompt-text"></pre>
+  </div>
+
+  <!-- Grade Area -->
+  <div id="grade-area">
+    <div class="scorecard">
+      <div class="scorecard-head">
+        <span class="sc-title">Article Scorecard</span>
+        <div class="overall-score">
+          <span class="big-num" id="overall-num">—</span>
+          <span class="denom">/ 10</span>
+        </div>
+      </div>
+      <div class="score-rows" id="score-rows"></div>
+      <div class="score-verdict" id="score-verdict"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Article Improvement Tool · Cloudcroft Reader / Mountain Monthly · Powered by Claude</footer>
+
+<script>
+// ── Character count ──
+const input = document.getElementById('article-input');
+const counter = document.getElementById('char-count');
+input.addEventListener('input', () => counter.textContent = input.value.length.toLocaleString());
+
+// ── View toggle ──
+function setView(mode) {
+  const side    = document.getElementById('side-view');
+  const revised = document.getElementById('revised-only');
+  const tSide   = document.getElementById('toggle-side');
+  const tRev    = document.getElementById('toggle-revised');
+
+  if (mode === 'side') {
+    side.style.display    = 'grid';
+    revised.style.display = 'none';
+    tSide.classList.add('active');
+    tRev.classList.remove('active');
+  } else {
+    side.style.display    = 'none';
+    revised.style.display = 'block';
+    tSide.classList.remove('active');
+    tRev.classList.add('active');
+  }
+}
+
+// ── Clear ──
+function clearAll() {
+  document.getElementById('article-input').value = '';
+  counter.textContent = '0';
+  document.getElementById('results-area').style.display = 'none';
+  document.getElementById('progress-area').style.display = 'none';
+  document.getElementById('prompt-panel').style.display = 'none';
+  document.getElementById('grade-area').style.display = 'none';
+}
+
+// ── Copy revised ──
+function copyRevised() {
+  const text = document.getElementById('revised-body').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Revised', 1800);
+  });
+}
+
+// ── Progress helpers ──
+let progressTimer;
+function startProgress() {
+  const bar = document.getElementById('progress-bar');
+  const msg = document.getElementById('progress-msg');
+  const steps = [
+    [10, 'Reading article structure…'],
+    [28, 'Analyzing lead and flow…'],
+    [48, 'Applying editorial standards…'],
+    [68, 'Revising prose and tightening copy…'],
+    [85, 'Generating editorial notes…'],
+    [95, 'Finalizing…'],
+  ];
+  let i = 0;
+  bar.style.width = '5%';
+  progressTimer = setInterval(() => {
+    if (i < steps.length) {
+      bar.style.width = steps[i][0] + '%';
+      msg.textContent = steps[i][1];
+      i++;
+    }
+  }, 900);
+}
+function stopProgress() {
+  clearInterval(progressTimer);
+  document.getElementById('progress-bar').style.width = '100%';
+}
+
+// ── Standard labels ──
+const standardLabels = {
+  'nyt': 'New York Times',
+  'ap': 'AP / Wire Style',
+  'new-yorker': 'The New Yorker',
+  'local': 'Local Community Voice',
+};
+const focusLabels = {
+  'all': 'full improvement',
+  'lead': 'lead and structure',
+  'tighten': 'tightening and cutting wordiness',
+  'voice': 'voice and tone',
+  'flow': 'flow and transitions',
+};
+
+// ── Build system prompt ──
+function buildSystemPrompt(standard, focus, publication) {
+  const stdLabel = standardLabels[standard] || 'New York Times';
+  const focusLabel = focusLabels[focus] || 'full improvement';
+  const pubNote = publication === 'cloudcroft-reader'
+    ? 'This article runs in the Cloudcroft Reader, a digital accountability-focused local news publication in Cloudcroft, NM. Oxford comma is house style.'
+    : publication === 'mountain-monthly'
+    ? 'This article runs in Mountain Monthly, a community print newspaper serving the Sacramento Mountains region. Warm, community voice. Oxford comma is house style.'
+    : 'Apply standard editorial guidelines.';
+
+  return `You are a senior editor with the standards of ${stdLabel}. Your job is to improve a draft article with a focus on: ${focusLabel}.
+
+${pubNote}
+
+INSTRUCTIONS:
+1. Produce a revised version of the article that is noticeably tighter, clearer, and better structured.
+2. Preserve all facts, names, quotes, and attributions — do not invent or remove factual content.
+3. Use AP Style (with Oxford comma as house style).
+4. After the revised article, write a short "Editorial Notes" section explaining the 3–5 most significant changes you made and why.
+
+OUTPUT FORMAT — respond in this exact structure with these exact delimiter lines:
+
+===REVISED===
+[your revised article here]
+
+===NOTES===
+[your editorial notes here, in plain prose, no bullet points, 100–200 words]
+
+Do not include any other text outside this structure.`;
+}
+
+// ── Main function ──
+async function runImprovement() {
+  const articleText = document.getElementById('article-input').value.trim();
+  if (!articleText || articleText.length < 50) {
+    alert('Please paste an article (at least 50 characters) before running.');
+    return;
+  }
+
+  const standard    = document.getElementById('standard').value;
+  const focus       = document.getElementById('focus').value;
+  const publication = document.getElementById('publication').value;
+
+  // Show progress
+  document.getElementById('results-area').style.display = 'none';
+  document.getElementById('progress-area').style.display = 'block';
+  document.getElementById('run-btn').disabled = true;
+  startProgress();
+
+  try {
+    const systemPrompt = buildSystemPrompt(standard, focus, publication);
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'no-key-required',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: `Here is the article to improve:\n\n${articleText}` }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    stopProgress();
+
+    if (data.error) throw new Error(data.error.message || 'API error');
+
+    const raw = data.content.map(b => b.type === 'text' ? b.text : '').join('');
+
+    // Parse delimiters
+    const revisedMatch = raw.match(/===REVISED===\s*([\s\S]*?)(?:===NOTES===|$)/);
+    const notesMatch   = raw.match(/===NOTES===\s*([\s\S]*?)$/);
+
+    const revised = revisedMatch ? revisedMatch[1].trim() : raw.trim();
+    const notes   = notesMatch   ? notesMatch[1].trim()   : '';
+
+    // Populate
+    document.getElementById('original-body').textContent  = articleText;
+    document.getElementById('revised-body').textContent   = revised;
+    document.getElementById('revised-body-2').textContent = revised;
+    document.getElementById('summary-body').textContent   = notes || 'No editorial notes returned.';
+
+    document.getElementById('progress-area').style.display = 'none';
+    document.getElementById('results-area').style.display  = 'block';
+    setView('side');
+    document.getElementById('results-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (err) {
+    stopProgress();
+    document.getElementById('progress-area').style.display = 'none';
+    alert('Error: ' + err.message);
+  } finally {
+    document.getElementById('run-btn').disabled = false;
+  }
+}
+
+// ── Show prompt ──
+function showPrompt() {
+  const standard    = document.getElementById('standard').value;
+  const focus       = document.getElementById('focus').value;
+  const publication = document.getElementById('publication').value;
+  const prompt = buildSystemPrompt(standard, focus, publication);
+  document.getElementById('prompt-text').textContent = prompt;
+  const panel = document.getElementById('prompt-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Grade Article ──
+async function runGrade() {
+  const articleText = document.getElementById('article-input').value.trim();
+  if (!articleText || articleText.length < 50) {
+    alert('Please paste an article before grading.');
+    return;
+  }
+
+  document.getElementById('grade-area').style.display = 'none';
+  document.getElementById('progress-area').style.display = 'block';
+  document.getElementById('grade-btn').disabled = true;
+  document.getElementById('run-btn').disabled = true;
+
+  const bar = document.getElementById('progress-bar');
+  const msg = document.getElementById('progress-msg');
+  bar.style.width = '10%';
+  msg.textContent = 'Grading article…';
+  const t1 = setTimeout(() => { bar.style.width = '40%'; msg.textContent = 'Scoring categories…'; }, 800);
+  const t2 = setTimeout(() => { bar.style.width = '75%'; msg.textContent = 'Writing verdict…'; }, 1800);
+  const t3 = setTimeout(() => { bar.style.width = '92%'; }, 2600);
+
+  const gradePrompt = `You are a veteran newspaper editor grading a draft article on five criteria, each scored 1–10.
+
+CRITERIA:
+1. Lead Strength — Does the opening hook the reader, place them in the story, and deliver the most important information immediately?
+2. AP Style & Grammar — Correct AP Style usage, grammar, punctuation, sentence mechanics. Oxford comma is house style (not a violation).
+3. Structure & Flow — Logical paragraph order, smooth transitions, inverted pyramid where appropriate, clear arc.
+4. Quote Usage — Are quotes well-chosen, properly attributed, and doing work the prose can't? Are they introduced and followed up correctly?
+5. Libel & Sensitivity Risk — Are there unverified allegations, legally risky phrasing, unnamed sources without sufficient justification, or insensitive framing?
+
+OUTPUT FORMAT — respond ONLY with this JSON, no other text:
+{
+  "lead": { "score": 7, "note": "one sentence explanation" },
+  "ap": { "score": 8, "note": "one sentence explanation" },
+  "structure": { "score": 6, "note": "one sentence explanation" },
+  "quotes": { "score": 7, "note": "one sentence explanation" },
+  "libel": { "score": 9, "note": "one sentence explanation" },
+  "verdict": "2–3 sentence overall assessment. Most important strength. Most important fix."
+}
+
+Be honest and direct. Scores of 9–10 should be rare. Use the full range.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'no-key-required',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: gradePrompt,
+        messages: [{ role: 'user', content: `Grade this article:\n\n${articleText}` }]
+      })
+    });
+
+    clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+    bar.style.width = '100%';
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const raw = data.content.map(b => b.type === 'text' ? b.text : '').join('').trim();
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const grades = JSON.parse(clean);
+
+    renderScorecard(grades);
+
+    document.getElementById('progress-area').style.display = 'none';
+    document.getElementById('grade-area').style.display = 'block';
+    document.getElementById('grade-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (err) {
+    clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+    document.getElementById('progress-area').style.display = 'none';
+    alert('Grading error: ' + err.message);
+  } finally {
+    document.getElementById('grade-btn').disabled = false;
+    document.getElementById('run-btn').disabled = false;
+  }
+}
+
+function renderScorecard(grades) {
+  const categories = [
+    { key: 'lead',      label: 'Lead Strength' },
+    { key: 'ap',        label: 'AP Style & Grammar' },
+    { key: 'structure', label: 'Structure & Flow' },
+    { key: 'quotes',    label: 'Quote Usage' },
+    { key: 'libel',     label: 'Libel & Sensitivity Risk' },
+  ];
+
+  const scores = categories.map(c => grades[c.key]?.score || 0);
+  const avg = Math.round((scores.reduce((a,b) => a+b, 0) / scores.length) * 10) / 10;
+
+  document.getElementById('overall-num').textContent = avg.toFixed(1);
+
+  const rowsEl = document.getElementById('score-rows');
+  rowsEl.innerHTML = '';
+
+  categories.forEach(c => {
+    const item = grades[c.key];
+    const s = item?.score || 0;
+    const pct = (s / 10) * 100;
+    const barClass = s >= 7 ? 'bar-high' : s >= 5 ? 'bar-mid' : 'bar-low';
+    const numClass = s >= 7 ? 'num-high' : s >= 5 ? 'num-mid' : 'num-low';
+
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `
+      <div>
+        <div class="score-label">${c.label}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${item?.note || ''}</div>
+      </div>
+      <div class="score-bar-wrap">
+        <div class="score-bar ${barClass}" style="width:0%" data-pct="${pct}"></div>
+      </div>
+      <div class="score-num ${numClass}">${s}/10</div>
+    `;
+    rowsEl.appendChild(row);
+  });
+
+  // Animate bars after paint
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.querySelectorAll('.score-bar[data-pct]').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+    }, 80);
+  });
+
+  document.getElementById('score-verdict').textContent = grades.verdict || '';
+}
+</script>
+</body>
+</html>

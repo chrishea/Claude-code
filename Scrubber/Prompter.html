@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudcroft Guide | Stay in the Clouds</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2d4739;
+            --mountain-snow: #f4f7f6;
+            --autumn-gold: #c6893f;
+            --slate: #333;
+            --white: #ffffff;
+            --map-pin-color: #d9534f;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--slate);
+            line-height: 1.6;
+            background-color: var(--mountain-snow);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Header & Relief Widget --- */
+        header {
+            background: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--forest-green);
+            font-weight: bold;
+        }
+
+        .relief-widget {
+            background: #e8f0ec;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        #temp-alamo {
+            color: #d35400;
+        }
+
+        #temp-cloud {
+            color: var(--forest-green);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2000') center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            padding: 0 10%;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        /* Updated CTA Button to trigger popup */
+        .cta-button {
+            background: var(--forest-green);
+            color: var(--white);
+            padding: 1rem 2.5rem;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .cta-button:hover {
+            background: #1e3126;
+        }
+
+        /* --- General Popup Styles --- */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .popup-modal {
+            background: var(--white);
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: popIn 0.4s ease-out;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+            z-index: 10;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* --- Facebook Specific Popup --- */
+        #fb-modal-content {
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #fb-modal-content h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--forest-green);
+            margin-top: 0;
+        }
+
+        .fb-follow-btn {
+            background: #1877F2;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        /* --- NEW LODGING POPUP STYLES --- */
+        #lodging-modal-content {
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        #lodging-modal-content h2 {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: var(--forest-green);
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Lodging Grid - Responsive */
+        .lodging-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            /* Mobile default: 1 column */
+            gap: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .lodging-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Tablet: 2 columns */
+        }
+
+        @media (min-width: 992px) {
+            .lodging-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            /* Desktop: 4 columns */
+        }
+
+        /* Lodging Card Styles */
+        .lodging-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            /* Ensure cards in same row are same height */
+        }
+
+        .lodging-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-image {
+            height: 160px;
+            width: 100%;
+            object-fit: cover;
+            border-bottom: 3px solid var(--forest-green);
+        }
+
+        .card-text {
+            padding: 15px;
+            flex-grow: 1;
+            /* Ensures text area fills space if titles vary in length */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--forest-green);
+            margin-bottom: 5px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* --- Seasonal & Map Sections (Reduced for brevity, keep your existing CSS here) --- */
+        .seasonal-section {
+            padding: 5rem 10%;
+            text-align: center;
+        }
+
+        .vibe-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 2rem;
+            border: 2px solid var(--forest-green);
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--forest-green);
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .tab-btn.active {
+            background: var(--forest-green);
+            color: var(--white);
+        }
+
+        .vibe-content {
+            display: none;
+        }
+
+        .vibe-content.active {
+            display: block;
+        }
+
+        .vibe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .vibe-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        footer {
+            background: var(--slate);
+            color: var(--white);
+            padding: 3rem 10%;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="fb-popup-overlay" class="popup-overlay">
+        <div class="popup-modal" id="fb-modal-content">
+            <button class="close-popup" onclick="closePopup('fb-popup-overlay')">&times;</button>
+            <h2>Join the Village</h2>
+            <p>Get live weather alerts and local news delivered to your feed.</p>
+            <a href="https://facebook.com/yourpage" target="_blank" class="fb-follow-btn">Follow on Facebook</a>
+        </div>
+    </div>
+
+    <div id="lodging-popup-overlay" class="popup-overlay">
+        <div class="popup-modal" id="lodging-modal-content">
+            <button class="close-popup" onclick="closePopup('lodging-popup-overlay')">&times;</button>
+            <h2>Rest Your Head at 9,000ft</h2>
+
+            <div class="lodging-grid">
+                <a href="https://www.thelodgeresort.com/" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600"
+                        alt="Historic Lodge" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">The Historic Lodge</div>
+                        <p class="card-desc">Cloudcroft's iconic centerpiece since 1899. Victorian charm and fine
+                            dining.</p>
+                    </div>
+                </a>
+                <a href="https://example.com/cabins" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&q=80&w=600"
+                        alt="Cozy Cabins" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">Burro Street Cabins</div>
+                        <p class="card-desc">Rustic-chic cabins right in the heart of the downtown village action.</p>
+                    </div>
+                </a>
+                <a href="https://example.com/rv" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1627664819818-e147d6221422?auto=format&fit=crop&q=80&w=600"
+                        alt="RV Park" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">High Pines RV Park</div>
+                        <p class="card-desc">Full hookups nestled tall pines. The perfect basecamp for road warriors.
+                        </p>
+                    </div>
+                </a>
+                <a href="https://example.com/motel" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1590929825813-1539c9c83433?auto=format&fit=crop&q=80&w=600"
+                        alt="Boutique Motel" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">The Summit Inn</div>
+                        <p class="card-desc">A renovated retro motel offering modern comfort with unbeatable views.</p>
+                    </div>
+                </a>
+                <a href="https://airbnb.com" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=600"
+                        alt="Forest A-Frame" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">Hidden A-Frames</div>
+                        <p class="card-desc">Secluded forest getaways perfect for romantic escapes and stargazing.</p>
+                    </div>
+                </a>
+                <a href="https://vrbo.com" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&q=80&w=600"
+                        alt="Large Family Rental" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">Family Lodges</div>
+                        <p class="card-desc">Spacious vacation homes big enough for the whole extended family reunion.
+                        </p>
+                    </div>
+                </a>
+                <a href="https://example.com/camping" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1532339142463-fd0a8979791a?auto=format&fit=crop&q=80&w=600"
+                        alt="Tent Camping" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">National Forest Camping</div>
+                        <p class="card-desc">Get back to basics. Designated campgrounds in the Lincoln National Forest.
+                        </p>
+                    </div>
+                </a>
+                <a href="https://example.com/bnb" target="_blank" class="lodging-card">
+                    <img src="https://images.unsplash.com/photo-1613368473983-ab8531a5d170?auto=format&fit=crop&q=80&w=600"
+                        alt="Bed and Breakfast" class="card-image">
+                    <div class="card-text">
+                        <div class="card-title">The Aspen B&B</div>
+                        <p class="card-desc">Wake up to homemade breakfast and local hospitality in a cozy setting.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <a href="#" class="logo">cloudcroftguide.com</a>
+        <div class="relief-widget" id="weather-widget">
+            Alamogordo: <span id="temp-alamo">--°F</span> | <b>Cloudcroft: <span id="temp-cloud">--°F</span></b>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>9,000 Feet of Relief.</h1>
+        <p>Experience the 20-degree drop for yourself.</p>
+        <button onclick="openPopup('lodging-popup-overlay')" class="cta-button">Find Your Stay</button>
+    </section>
+
+    <section class="seasonal-section" id="explore">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem;">Choose Your Vibe</h2>
+        <div class="vibe-tabs">
+            <button class="tab-btn active" onclick="showVibe('summer')">Summer</button>
+            <button class="tab-btn" onclick="showVibe('autumn')">Autumn</button>
+            <button class="tab-btn" onclick="showVibe('winter')">Winter</button>
+        </div>
+        <div id="summer" class="vibe-content active">
+            <div class="vibe-grid">
+                <div class="vibe-card">
+                    <h4>Summer Vibe</h4>
+                    <p>Content goes here.</p>
+                </div>
+            </div>
+        </div>
+        <div id="autumn" class="vibe-content">
+            <div class="vibe-grid">
+                <div class="vibe-card">
+                    <h4>Autumn Vibe</h4>
+                    <p>Content goes here.</p>
+                </div>
+            </div>
+        </div>
+        <div id="winter" class="vibe-content">
+            <div class="vibe-grid">
+                <div class="vibe-card">
+                    <h4>Winter Vibe</h4>
+                    <p>Content goes here.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 cloudcroftguide.com | Respect the Woods. Watch for Bears.</p>
+    </footer>
+
+    <script>
+        // --- WEATHER LOGIC ---
+        const API_KEY = 'YOUR_OPENWEATHER_API_KEY'; // Replace with your key
+
+        async function fetchWeather() {
+            try {
+                // Using dummy data for demo purposes so it looks nice immediately.
+                // Uncomment the fetch lines and remove dummy lines to use real API.
+                // const resAlamo = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Alamogordo,NM,US&units=imperial&appid=${API_KEY}`);
+                // const dataAlamo = await resAlamo.json();
+                // const resCloud = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Cloudcroft,NM,US&units=imperial&appid=${API_KEY}`);
+                // const dataCloud = await resCloud.json();
+                // if(dataAlamo.main) document.getElementById('temp-alamo').innerText = Math.round(dataAlamo.main.temp) + '°F';
+                // if(dataCloud.main) document.getElementById('temp-cloud').innerText = Math.round(dataCloud.main.temp) + '°F';
+                document.getElementById('temp-alamo').innerText = '98°F';
+                document.getElementById('temp-cloud').innerText = '72°F';
+            } catch (error) {
+                console.log("Weather failed.");
+            }
+        }
+
+        // --- SEASONAL VIBE LOGIC ---
+        function showVibe(vibeId) {
+            document.querySelectorAll('.vibe-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(vibeId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- POPUP LOGIC (Unified) ---
+        // Function to open a specific popup by ID
+        function openPopup(popupId) {
+            document.getElementById(popupId).style.display = 'flex';
+        }
+
+        // Function to close a specific popup by ID
+        function closePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = function () {
+            fetchWeather();
+            // Facebook popup timer (Still set to 5 seconds)
+            setTimeout(() => { openPopup('fb-popup-overlay'); }, 5000);
+        };
+    </script>
+</body>
+
+</html>

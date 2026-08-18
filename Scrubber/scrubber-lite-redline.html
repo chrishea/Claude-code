@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scrubber Lite — Redline Review</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #2c5e3f;
+    --accept: #2c7a4b;
+    --accept-bg: #e6f4ec;
+    --reject: #b14a4a;
+    --reject-bg: #fbeaea;
+    --pending: #c08a2e;
+    --before-bg: #fff5f5;
+    --before-strike: #b14a4a;
+    --after-bg: #f0f8f3;
+    --after-text: #2c5e3f;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+  header.page {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  header.page h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  header.page .sub {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .summary {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 12px;
+    z-index: 10;
+  }
+  .stats { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; align-items: flex-start; }
+  .stat-num { font-size: 22px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-top: 2px; }
+  .stat.pending .stat-num { color: var(--pending); }
+  .stat.accepted .stat-num { color: var(--accept); }
+  .stat.rejected .stat-num { color: var(--reject); }
+  .stat.total .stat-num { color: var(--ink); }
+  .summary-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.btn {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    transition: all .15s ease;
+    font-weight: 500;
+  }
+  button.btn:hover { background: #f3f4f6; }
+  button.btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  button.btn.primary:hover { background: #234d33; }
+
+  .quick-read {
+    background: #fff8e1;
+    border-left: 4px solid #c08a2e;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .quick-read strong { color: #8a6020; }
+
+  .section { margin-bottom: 32px; }
+  .section h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin: 0 0 12px;
+  }
+
+  .fix {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    transition: all .2s ease;
+  }
+  .fix.accepted { border-left-color: var(--accept); background: var(--accept-bg); }
+  .fix.rejected { border-left-color: var(--reject); background: var(--reject-bg); opacity: .7; }
+  .fix-row { display: flex; gap: 12px; margin: 4px 0; align-items: flex-start; }
+  .fix-label {
+    flex: 0 0 60px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    font-weight: 600;
+    padding-top: 4px;
+  }
+  .fix-text {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .fix-before {
+    background: var(--before-bg);
+    color: var(--before-strike);
+    text-decoration: line-through;
+    text-decoration-color: rgba(177, 74, 74, .5);
+  }
+  .fix-after {
+    background: var(--after-bg);
+    color: var(--after-text);
+    font-weight: 500;
+  }
+  .fix-rule {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    padding-left: 72px;
+    font-style: italic;
+  }
+  .fix-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-left: 72px;
+  }
+  .fix-actions button {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all .15s;
+  }
+  .fix-actions .accept { color: var(--accept); border-color: var(--accept); }
+  .fix-actions .accept:hover, .fix.accepted .fix-actions .accept { background: var(--accept); color: #fff; }
+  .fix-actions .reject { color: var(--reject); border-color: var(--reject); }
+  .fix-actions .reject:hover, .fix.rejected .fix-actions .reject { background: var(--reject); color: #fff; }
+  .fix-actions .reset { color: var(--muted); }
+  .fix-actions .reset:hover { background: #f3f4f6; }
+  .status-tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .status-tag.accepted { background: var(--accept); color: #fff; }
+  .status-tag.rejected { background: var(--reject); color: #fff; }
+
+  .headline-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  @media (max-width: 640px) {
+    .fix-row { flex-direction: column; gap: 4px; }
+    .fix-rule, .fix-actions { padding-left: 0; }
+    .summary { position: static; flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="page">
+  <h1>Scrubber Lite — Redline Review</h1>
+  <div class="sub">Cloudcroft Reader · Sacramento Mountain Summers piece · ~1,600 words · 33 proposed fixes</div>
+</header>
+
+<div class="summary">
+  <div class="stats">
+    <div class="stat total"><span class="stat-num" id="totalCount">33</span><span class="stat-label">Total</span></div>
+    <div class="stat pending"><span class="stat-num" id="pendingCount">33</span><span class="stat-label">Pending</span></div>
+    <div class="stat accepted"><span class="stat-num" id="acceptedCount">0</span><span class="stat-label">Accepted</span></div>
+    <div class="stat rejected"><span class="stat-num" id="rejectedCount">0</span><span class="stat-label">Rejected</span></div>
+  </div>
+  <div class="summary-actions">
+    <button class="btn" onclick="acceptAll()">Accept all</button>
+    <button class="btn" onclick="rejectAll()">Reject all</button>
+    <button class="btn" onclick="resetAll()">Reset</button>
+    <button class="btn primary" onclick="exportDecisions()">Export decisions</button>
+  </div>
+</div>
+
+<div class="quick-read">
+  <strong>Quick read:</strong> Several issues — date/time formatting, en dashes, ordinals, and a missing-space typo need cleanup before posting.
+</div>
+
+<div class="section">
+  <h2>AP Style Fixes</h2>
+  <div id="apFixes"></div>
+</div>
+
+<div class="section">
+  <h2>Local Style Fixes</h2>
+  <div id="localFixes"></div>
+</div>
+
+<div class="section">
+  <h2>Grammar &amp; Typos</h2>
+  <div id="grammarFixes"></div>
+</div>
+
+<div class="section">
+  <h2>Troublesome Passages</h2>
+  <div id="passageFixes"></div>
+</div>
+
+<div class="section">
+  <h2>Headline</h2>
+  <div class="headline-card">
+    <strong>Current:</strong> [none supplied]<br>
+    <span style="color:var(--muted); font-size:13px;">No headline provided with the draft — flag for the desk to add one before publication.</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+const fixes = {
+  apFixes: [
+    {b:'happening August 7-9', a:'happening Aug. 7-9', r:'Dates — abbreviate Aug. with a specific date'},
+    {b:'The Cloudcroft Ultra follows on August 15', a:'The Cloudcroft Ultra follows on Aug. 15', r:'Dates — abbreviate Aug. with a specific date'},
+    {b:'Saturday, August 1 at 7 p.m.', a:'Saturday, Aug. 1, at 7 p.m.', r:'Dates — abbreviate Aug.; comma after the date in a clause'},
+    {b:'Sessions run Thursdays from 1 to 3 p.m. on June 11, July 2, July 23, and August 13.', a:'Sessions run Thursdays from 1 to 3 p.m. on June 11, July 2, July 23 and Aug. 13.', r:'Dates — abbreviate Aug.; AP drops Oxford comma in simple series (note: local style keeps it — choose one)'},
+    {b:'Battle of the Bands on August 1 at 1 p.m.', a:'Battle of the Bands on Aug. 1 at 1 p.m.', r:'Dates — abbreviate Aug. with a specific date'},
+    {b:'a Nature Scavenger Hunt on August 7 at 11 a.m.', a:'a Nature Scavenger Hunt on Aug. 7 at 11 a.m.', r:'Dates — abbreviate Aug. with a specific date'},
+    {b:'Register for a 4-5 day course', a:'Register for a four- to five-day course', r:'Numbers — spell out one through nine; use proper "to" construction'},
+    {b:'the 2nd Annual Pickleball in the Cloudstournament', a:'the second annual Pickleball in the Clouds tournament', r:'Ordinals — spell out first through ninth; also missing space typo'},
+    {b:'on Sundays from 12-2 p.m. and 2-4 p.m.', a:'on Sundays from noon to 2 p.m. and 2 to 4 p.m.', r:'Times — noon spelled out; use "to" in time ranges'},
+    {b:'a Daniel Tiger Scavenger Hunt on June 13 (noon–2 p.m.)', a:'a Daniel Tiger Scavenger Hunt on June 13 (noon to 2 p.m.)', r:'Times — use "to" in ranges; replace en dash'},
+    {b:'a Fourth of July celebration at the library from 1–3 p.m.', a:'a Fourth of July celebration at the library from 1 to 3 p.m.', r:'Times — use "to" in ranges'},
+    {b:'BeerFest on June 13–14', a:'BeerFest on June 13-14', r:'Punctuation — AP uses hyphen, not en dash, in date ranges'},
+    {b:'the Christmas in July Jamboree on July 11–12', a:'the Christmas in July Jamboree on July 11-12', r:'Punctuation — hyphen, not en dash'},
+    {b:'from 2–5 p.m.', a:'from 2 to 5 p.m.', r:'Times — "to" preferred in ranges'},
+    {b:'Registration is just $5–$13 per team', a:'Registration is just $5 to $13 per team', r:'Money/ranges — use "to" with money'},
+    {b:'ranked number two in the state on UDisc.com', a:'ranked No. 2 in the state on UDisc.com', r:'Rankings — AP uses "No." with a figure'},
+    {b:'Find them at 102 Mexican Avenue in the heart of the village.', a:'Find them at 102 Mexican Ave. in the heart of the village.', r:'Addresses — abbreviate Ave. with a numbered address'},
+    {b:'newly-organized events', a:'newly organized events', r:'Hyphens — no hyphen after -ly adverbs'},
+    {b:'This year-round non-denominational Christian camp', a:'This year-round nondenominational Christian camp', r:'AP — most "non-" prefixes close up'},
+    {b:'a rustic girls and women-only outdoor camp', a:'a rustic girls- and women-only outdoor camp', r:'Hyphens — suspended hyphen in coordinate compound modifiers'},
+    {b:'a 50k and 32k race', a:'a 50K and 32K race', r:'Consistency — earlier event uses "53K"; pick one case'}
+  ],
+  localFixes: [
+    {b:'The Weed, NM community', a:'The Weed, New Mexico, community', r:'States spelled out in body text; comma after state'},
+    {b:'presented by the NM Rails-to-Trails Association', a:'presented by the New Mexico Rails-to-Trails Association', r:'States spelled out in body text'},
+    {b:'The Reader will follow up with more details soon.', a:'The Cloudcroft Reader will follow up with more details soon. (italicize publication title)', r:'Publication title in italics'},
+    {b:'powered by the Mountain Monthly', a:'powered by the Mountain Monthly (italicize publication title)', r:'Publication title in italics'},
+    {b:'Recreation is plentiful — think horseback trail rides', a:'Recreation is plentiful—think horseback trail rides', r:'Em dash with no spaces (local style)'},
+    {b:'Barr describes the series as "fun, chatty, not boring" — the same lectures', a:'Barr describes the series as "fun, chatty, not boring"—the same lectures', r:'Em dash with no spaces (local style)'},
+    {b:'plan your fun in the village ... The Chamber and the Village', a:'Pick one: "the village" (lowercase, descriptive) vs. "the Village" (municipal entity)', r:'Inconsistent capitalization of village/Village throughout'}
+  ],
+  grammarFixes: [
+    {b:'the 2nd Annual Pickleball in the Cloudstournament adds a competitive weekend', a:'the second annual Pickleball in the Clouds tournament adds a competitive weekend', r:'Typo — missing space between "Clouds" and "tournament"'},
+    {b:'tacos, enchiladas, posole, aguas frescos, hamburgers', a:'tacos, enchiladas, posole, aguas frescas, hamburgers', r:'Spelling — Spanish gender agreement (feminine plural)'},
+    {b:"Whether you're a local, seasonal, or visitor", a:"Whether you're a local, seasonal resident or visitor", r:'Parallelism — "seasonal" dangling as a noun'},
+    {b:'Osha Trail Depot features local artists in a variety of media, with lots of landscape and floral paintings with a New Mexican vibe.', a:'Osha Trail Depot features local artists working in a variety of media, including landscape and floral paintings with a New Mexican vibe.', r:'Awkward double "with"'},
+    {b:'The Shady Pines Chamber Players (SPCP) concerts are also back for the season.', a:'Move the (SPCP) acronym to its first reference in the prior paragraph, not the second mention.', r:'Acronym belongs on first reference'}
+  ],
+  passageFixes: [
+    {b:"Whether you're a local, seasonal, or visitor, mark your calendars and plan your fun in the village when the temps are cool on the sky island.", a:"Whether you live here year-round, come up for the season, or are visiting for the first time, mark your calendars for cool-weather fun on the sky island.", r:'Broken parallelism and a tangled second half'},
+    {b:'Public pickleball courts at Zenith are undergoing resurfacing this week, and the 2nd Annual Pickleball in the Cloudstournament adds a competitive weekend to the summer mix, June 6-7.', a:'Public pickleball courts at Zenith are being resurfaced this week, and the second annual Pickleball in the Clouds tournament adds a competitive weekend to the mix June 6-7.', r:'Typo plus awkward date placement'},
+    {b:'That same August weekend also brings newly-organized events, a Quick Draw live art event, and the Art Dash at the Lodge Pavilion.', a:'That same August weekend brings two new additions: a Quick Draw live-art competition and the Art Dash at the Lodge Pavilion.', r:'"Events…event" redundancy; vague "newly-organized"'},
+    {b:'Cloudcroft sits at about 8,676 feet, and the race info specifically advises visitors to arrive early to acclimate to the altitude.', a:'Cloudcroft sits at 8,676 feet, and race organizers advise visitors to arrive early to acclimate.', r:'Hedging ("about") with a precise number; "race info" is vague'},
+    {b:'Folks looking for a public swim on the mountain can head to the Grand Cloudcroft Hotel, which hosts pool times for non-guests on Sundays from 12-2 p.m. and 2-4 p.m.', a:'For a public swim, head to the Grand Cloudcroft Hotel, which opens its pool to non-guests Sundays from noon to 2 p.m. and 2 to 4 p.m.', r:'Wordy opening; bad time formatting'}
+  ]
+};
+
+const sections = [
+  {key:'apFixes', labelType:'Rule'},
+  {key:'localFixes', labelType:'Note'},
+  {key:'grammarFixes', labelType:'Issue'},
+  {key:'passageFixes', labelType:'Why'}
+];
+
+let allFixes = [];
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render() {
+  let idx = 0;
+  sections.forEach(sec => {
+    const container = document.getElementById(sec.key);
+    container.innerHTML = '';
+    fixes[sec.key].forEach(fix => {
+      const id = 'fix-' + idx;
+      fix._id = id;
+      fix._section = sec.key;
+      allFixes.push(fix);
+      const div = document.createElement('div');
+      div.className = 'fix';
+      div.id = id;
+      div.innerHTML = `
+        <div class="fix-row">
+          <div class="fix-label">Before</div>
+          <div class="fix-text fix-before">${escapeHtml(fix.b)}</div>
+        </div>
+        <div class="fix-row">
+          <div class="fix-label">After</div>
+          <div class="fix-text fix-after">${escapeHtml(fix.a)}</div>
+        </div>
+        <div class="fix-rule"><strong>${sec.labelType}:</strong> ${escapeHtml(fix.r)}<span class="status-tag" id="${id}-tag" style="display:none;"></span></div>
+        <div class="fix-actions">
+          <button class="accept" onclick="setStatus('${id}','accepted')">Accept</button>
+          <button class="reject" onclick="setStatus('${id}','rejected')">Reject</button>
+          <button class="reset" onclick="setStatus('${id}','pending')">Reset</button>
+        </div>
+      `;
+      container.appendChild(div);
+      idx++;
+    });
+  });
+  updateCounts();
+}
+
+function setStatus(id, status) {
+  const fix = allFixes.find(f => f._id === id);
+  if (!fix) return;
+  fix._status = status;
+  const el = document.getElementById(id);
+  el.classList.remove('accepted','rejected');
+  const tag = document.getElementById(id + '-tag');
+  if (status === 'accepted') {
+    el.classList.add('accepted');
+    tag.style.display = 'inline-block';
+    tag.className = 'status-tag accepted';
+    tag.textContent = 'Accepted';
+  } else if (status === 'rejected') {
+    el.classList.add('rejected');
+    tag.style.display = 'inline-block';
+    tag.className = 'status-tag rejected';
+    tag.textContent = 'Rejected';
+  } else {
+    tag.style.display = 'none';
+  }
+  updateCounts();
+}
+
+function updateCounts() {
+  let a = 0, r = 0, p = 0;
+  allFixes.forEach(f => {
+    if (f._status === 'accepted') a++;
+    else if (f._status === 'rejected') r++;
+    else p++;
+  });
+  document.getElementById('totalCount').textContent = allFixes.length;
+  document.getElementById('pendingCount').textContent = p;
+  document.getElementById('acceptedCount').textContent = a;
+  document.getElementById('rejectedCount').textContent = r;
+}
+
+function acceptAll() { allFixes.forEach(f => setStatus(f._id, 'accepted')); }
+function rejectAll() { allFixes.forEach(f => setStatus(f._id, 'rejected')); }
+function resetAll() { allFixes.forEach(f => setStatus(f._id, 'pending')); }
+
+function exportDecisions() {
+  let out = 'SCRUBBER LITE — DECISIONS\n';
+  out += '=========================\n\n';
+  const sectionNames = {
+    apFixes: 'AP STYLE FIXES',
+    localFixes: 'LOCAL STYLE FIXES',
+    grammarFixes: 'GRAMMAR & TYPOS',
+    passageFixes: 'TROUBLESOME PASSAGES'
+  };
+  sections.forEach(sec => {
+    const items = allFixes.filter(f => f._section === sec.key);
+    out += sectionNames[sec.key] + '\n';
+    out += '-'.repeat(sectionNames[sec.key].length) + '\n';
+    items.forEach((f, i) => {
+      const status = (f._status || 'pending').toUpperCase();
+      out += `\n[${status}] ${i+1}.\n`;
+      out += `  Before: "${f.b}"\n`;
+      out += `  After:  "${f.a}"\n`;
+      out += `  ${sec.labelType}: ${f.r}\n`;
+    });
+    out += '\n';
+  });
+  const a = allFixes.filter(f => f._status === 'accepted').length;
+  const r = allFixes.filter(f => f._status === 'rejected').length;
+  const p = allFixes.length - a - r;
+  out += `\nSUMMARY: ${a} accepted, ${r} rejected, ${p} pending (of ${allFixes.length} total)\n`;
+
+  const blob = new Blob([out], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'scrubber-lite-decisions.txt';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+render();
+</script>
+</body>
+</html>
